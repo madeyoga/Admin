@@ -1,0 +1,29 @@
+﻿@using Microsoft.Extensions.Options;
+@using MyAdmin.Admin;
+
+@inject IOptions<AdminOptions> opts;
+
+@{
+    Layout = "~/Areas/Admin/_Layout.cshtml";
+    ViewData["Title"] = "Admin Index";
+    AdminOptions options = opts.Value;
+}
+
+<div class="container-fluid row">
+    <div class="col-md-3">
+        <div class="p-4">
+            <h4>Site administration</h4>
+            <ul>
+                @foreach (var contentType in options.Admins.Keys)
+                {
+                <li><a href="@contentType/">@contentType</a></li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="p-4">
+            <h5>Recent activities</h5>
+        </div>
+    </div>
+</div>

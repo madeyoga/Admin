@@ -1,0 +1,14 @@
+﻿@using Microsoft.AspNetCore.Html;
+@using MyAdmin.Admin;
+
+@{
+	Layout = "~/Areas/Admin/_Layout.cshtml";
+    IRenderable formAdd = (ViewData["Form"] as IRenderable)!;
+}
+
+<div class="container">
+	<h1 class="display-4">@ViewData["ModelName"]</h1>
+
+	@(new HtmlString(formAdd.Render()))
+</div>
+

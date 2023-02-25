@@ -1,0 +1,72 @@
+﻿@using Microsoft.Extensions.Options;
+@using MyAdmin.Admin;
+
+@inject IOptions<AdminOptions> opts;
+@inject RouteReverser routeReverser;
+
+@{
+	Layout = "~/Areas/Admin/_Layout.cshtml";
+	ViewData["Title"] = "Select model to change";
+	AdminOptions options = opts.Value;
+}
+
+@{
+	List<Dictionary<string, object?>>? Data = ViewData["Data"] as List<Dictionary<string, object?>>;
+	HashSet<string>? Properties = ViewData["Properties"] as HashSet<string>;
+}
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-3">
+			<ul>
+				@foreach (string modelName in options.Admins.Keys)
+			{
+				<li><a href="../@modelName/">@modelName</a></li>
+			}
+			</ul>
+		</div>
+		<div class="col-lg-9">
+			<h1>@ViewData["ModelName"]</h1>
+
+			<div class="d-flex justify-content-end mb-4">
+				<a class="btn btn-primary" href="add/">Add @ViewData["ModelName"]</a>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+					@foreach (string key in Properties!)
+					{
+						<th>@key</th>
+					}
+					</tr>
+				</thead>
+				<tbody>
+				@foreach (Dictionary<string, object?> record in Data!)
+				{
+					int i = 0;
+
+					<tr>
+					@foreach (string key in Properties!)
+					{
+						@if (i == 0) 
+						{
+							<td>
+								<a href="@routeReverser.Reverse("MyAdmin_ModelChange_Get", new { modelName = @ViewData["ModelName"], objIdentifier = record.GetValueOrDefault(key) })">
+									@record.GetValueOrDefault(key)
+								</a>
+							</td>
+						}
+						@if (i != 0)
+						{
+							<td>@record.GetValueOrDefault(key)</td>
+						}
+						i += 1;
+					}
+					</tr>
+				}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
