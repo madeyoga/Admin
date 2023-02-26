@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace MyAdmin.Admin;
 
-public partial class RouteReverser
+public partial class RouteHelper
 {
     private readonly IEnumerable<EndpointDataSource> _endpointSources;
     private readonly Dictionary<string, string> _urls = new Dictionary<string, string>();
@@ -15,7 +15,7 @@ public partial class RouteReverser
         return displayName.Split(" ")[2];
     }
 
-    public RouteReverser(IEnumerable<EndpointDataSource> endpointSources)
+    public RouteHelper(IEnumerable<EndpointDataSource> endpointSources)
     {
         _endpointSources = endpointSources;
 

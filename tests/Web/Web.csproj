@@ -17,4 +17,12 @@
     <ProjectReference Include="..\..\src\MyAdmin\MyAdmin.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="G:\Programs\CSharp\MyAdmin\tests\Web\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="G:\Programs\CSharp\MyAdmin\tests\Web\.editorconfig" />
+  </ItemGroup>
+
 </Project>

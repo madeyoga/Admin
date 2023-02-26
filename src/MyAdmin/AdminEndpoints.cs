@@ -8,7 +8,7 @@ namespace MyAdmin.Admin;
 public static class AdminEndpoints
 {
     //[Authorize(Roles = "MyAdmin_Staff")]
-    public static IResult AdminIndex(IOptions<AdminOptions> options, RouteReverser routeReverser)
+    public static IResult AdminIndex(IOptions<AdminOptions> options, RouteHelper routeReverser)
     {
         return Results.Extensions.Render(options.Value.IndexTemplate);
     }
@@ -81,7 +81,7 @@ public static class AdminEndpoints
         HttpContext httpContext,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins,
-        [FromServices] RouteReverser routeReverser)
+        [FromServices] RouteHelper routeReverser)
         where TContext : DbContext
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
@@ -146,7 +146,7 @@ public static class AdminEndpoints
         HttpContext httpContext,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins,
-        [FromServices] RouteReverser routeReverser)
+        [FromServices] RouteHelper routeReverser)
         where TContext : DbContext
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);

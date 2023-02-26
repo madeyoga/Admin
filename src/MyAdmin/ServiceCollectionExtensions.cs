@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
         }
         services.AddTransient<Form>();
         services.AddScoped<AdminServiceProvider>();
-        services.AddSingleton<RouteReverser>();
+        services.AddSingleton<RouteHelper>();
         services.AddSingleton(typeof(IOptions<AdminOptions>), Options.Create(options));
 
         // Add cookie auth
