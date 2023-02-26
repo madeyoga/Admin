@@ -8,18 +8,18 @@ namespace MyAdmin.Admin;
 public static class AdminEndpoints
 {
     //[Authorize(Roles = "MyAdmin_Staff")]
-	public static IResult AdminIndex(IOptions<AdminOptions> options, RouteReverser routeReverser)
+    public static IResult AdminIndex(IOptions<AdminOptions> options, RouteReverser routeReverser)
     {
         return Results.Extensions.Render(options.Value.IndexTemplate);
     }
 
     //[Authorize(Roles = "MyAdmin_Staff")]
     public static IResult ModelIndex<TContext>(
-        [FromRoute] string modelName, 
-        [FromServices] TContext context, 
+        [FromRoute] string modelName,
+        [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins)
         where TContext : DbContext
-	{
+    {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
 
         if (modelAdmin == null)
@@ -34,30 +34,30 @@ public static class AdminEndpoints
         HashSet<string> properties = new();
         if (dbset != null)
         {
-            foreach(var record in dbset)
-			{
-				Dictionary<string, object?> temp = new();
-				foreach (var prop in record.GetType().GetProperties())
+            foreach (var record in dbset)
+            {
+                Dictionary<string, object?> temp = new();
+                foreach (var prop in record.GetType().GetProperties())
                 {
-					temp.Add(prop.Name, prop.GetValue(record));
-					properties.Add(prop.Name);
+                    temp.Add(prop.Name, prop.GetValue(record));
+                    properties.Add(prop.Name);
                 }
                 data.Add(temp);
             }
         }
 
-		return Results.Extensions.Render(modelAdmin.Index_Template, null, new
-		{
-			ModelName = modelName,
-			Data = data,
-			Properties = properties,
-		});
+        return Results.Extensions.Render(modelAdmin.Index_Template, null, new
+        {
+            ModelName = modelName,
+            Data = data,
+            Properties = properties,
+        });
     }
 
     //[Authorize(Roles = "MyAdmin_Staff")]
     public static IResult ModelAdd_Get(
-        [FromRoute] string modelName, 
-        [FromServices] IOptions<AdminOptions> options, 
+        [FromRoute] string modelName,
+        [FromServices] IOptions<AdminOptions> options,
         [FromServices] AdminServiceProvider admins)
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
@@ -79,24 +79,24 @@ public static class AdminEndpoints
     //[Authorize(Roles = "MyAdmin_Staff")]
     public static async Task<IResult> ModelAdd_Post<TContext>([FromRoute] string modelName,
         HttpContext httpContext,
-		[FromServices] TContext context,
-		[FromServices] AdminServiceProvider admins,
+        [FromServices] TContext context,
+        [FromServices] AdminServiceProvider admins,
         [FromServices] RouteReverser routeReverser)
         where TContext : DbContext
     {
-		ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
+        ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
 
-		if (modelAdmin == null)
-		{
-			return Results.NotFound();
-		}
+        if (modelAdmin == null)
+        {
+            return Results.NotFound();
+        }
 
-		Form form = modelAdmin.GetForm(httpContext.Request.Form);
+        Form form = modelAdmin.GetForm(httpContext.Request.Form);
         if (!await form.IsValid())
         {
             return Results.BadRequest();
         }
-        
+
         form.Save(context);
 
         return Results.Redirect(routeReverser.Reverse("MyAdmin_ModelIndex", new { modelName }));
@@ -120,11 +120,11 @@ public static class AdminEndpoints
         // Get the primary key property for the model type
         Type keyType = TypeHelper.FindKeyType(context, modelType);
 
-		// Convert the ID string to the appropriate type
-		object identifier = Convert.ChangeType(objIdentifier, keyType);
+        // Convert the ID string to the appropriate type
+        object identifier = Convert.ChangeType(objIdentifier, keyType);
 
-		// Call the Find method with the model type and ID to find the object
-		object? instance = await context.FindAsync(modelType, identifier);
+        // Call the Find method with the model type and ID to find the object
+        object? instance = await context.FindAsync(modelType, identifier);
 
         if (instance == null)
         {
@@ -138,38 +138,38 @@ public static class AdminEndpoints
         {
             Form = form,
         });
-	}
+    }
 
-	public static async Task<IResult> ModelChange_Post<TContext>(
-		[FromRoute] string modelName,
-		[FromRoute] string objIdentifier,
-		HttpContext httpContext,
-		[FromServices] TContext context,
-		[FromServices] AdminServiceProvider admins,
-		[FromServices] RouteReverser routeReverser)
-		where TContext : DbContext
-	{
-		ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
+    public static async Task<IResult> ModelChange_Post<TContext>(
+        [FromRoute] string modelName,
+        [FromRoute] string objIdentifier,
+        HttpContext httpContext,
+        [FromServices] TContext context,
+        [FromServices] AdminServiceProvider admins,
+        [FromServices] RouteReverser routeReverser)
+        where TContext : DbContext
+    {
+        ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
 
-		if (modelAdmin == null)
-		{
-			return Results.NotFound();
-		}
+        if (modelAdmin == null)
+        {
+            return Results.NotFound();
+        }
 
         // Assign and validate fields
-		Form form = modelAdmin.GetForm(httpContext.Request.Form);
+        Form form = modelAdmin.GetForm(httpContext.Request.Form);
 
-		if (!await form.IsValid())
-		{
-			return Results.BadRequest();
-		}
+        if (!await form.IsValid())
+        {
+            return Results.BadRequest();
+        }
 
         Type modelType = modelAdmin.ModelType!;
         Type keyType = TypeHelper.FindKeyType(context, modelType);
 
         object? identifier = Convert.ChangeType(objIdentifier, keyType);
 
-		object? instance = await context.FindAsync(modelType, identifier);
+        object? instance = await context.FindAsync(modelType, identifier);
 
         if (instance == null)
         {
@@ -178,6 +178,6 @@ public static class AdminEndpoints
 
         form.Save(context, instance);
 
-		return Results.Redirect(routeReverser.Reverse("MyAdmin_ModelIndex", new { modelName }));
-	}
+        return Results.Redirect(routeReverser.Reverse("MyAdmin_ModelIndex", new { modelName }));
+    }
 }

@@ -1,5 +1,5 @@
 ﻿/***
- * Code by DamianEdwards from
+ * Copied from
  * https://github.com/DamianEdwards/MinimalRazorComponents/blob/main/src/MinimalRazorComponents/Infrastructure/BufferWriterExtensions.cs
  */
 using System.Buffers;

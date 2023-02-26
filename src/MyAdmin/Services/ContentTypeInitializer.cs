@@ -15,7 +15,7 @@ public class ContentTypeInitializer<TContext> where TContext : DbContext
 
     public void Initialize()
     {
-        foreach(PropertyInfo propertyInfo in _context.GetType().GetProperties())
+        foreach (PropertyInfo propertyInfo in _context.GetType().GetProperties())
         {
             Type propType = propertyInfo.PropertyType;
             DbSet<ContentType> ContentTypes = _context.Set<ContentType>();

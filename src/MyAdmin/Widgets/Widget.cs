@@ -34,7 +34,7 @@ public class Widget : IRenderable
     public virtual bool ValidateValue()
     {
         return true;
-	}
+    }
 
     public virtual string Render()
     {
@@ -44,7 +44,7 @@ public class Widget : IRenderable
     protected virtual string RenderAttributes()
     {
         string result = "";
-        foreach(string key in _attributes.Keys)
+        foreach (string key in _attributes.Keys)
         {
             string attr = $"{key}=\"{HttpUtility.HtmlEncode(_attributes[key])}\" ";
             result += attr;

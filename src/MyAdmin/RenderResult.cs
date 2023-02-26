@@ -38,6 +38,6 @@ public class RenderResult : IResult
         var html = await RazorTemplateEngine.RenderAsync(TemplatePath, ViewModel, _parameters);
 
         httpContext.Response.BodyWriter.WriteHtml(html);
-		await httpContext.Response.BodyWriter.FlushAsync().ConfigureAwait(false);
+        await httpContext.Response.BodyWriter.FlushAsync().ConfigureAwait(false);
     }
 }
