@@ -7,7 +7,9 @@
 }
 
 <div class="container">
-    <h1 class="display-4">@ViewData["ModelName"]</h1>
+    <h1 class="display-4">@ViewData["ModelName"] @ViewData["identifier"]</h1>
+
+    <p>Editing @ViewData["instance"]!.ToString()</p>
 
     @(new HtmlString(formAdd.Render()))
 </div>

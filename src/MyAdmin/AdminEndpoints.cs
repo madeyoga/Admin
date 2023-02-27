@@ -8,7 +8,7 @@ namespace MyAdmin.Admin;
 public static class AdminEndpoints
 {
     //[Authorize(Roles = "MyAdmin_Staff")]
-    public static IResult AdminIndex(IOptions<AdminOptions> options, RouteHelper routeReverser)
+    public static IResult AdminIndex(IOptions<AdminOptions> options)
     {
         return Results.Extensions.Render(options.Value.IndexTemplate);
     }
@@ -81,7 +81,7 @@ public static class AdminEndpoints
         HttpContext httpContext,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins,
-        [FromServices] RouteHelper routeReverser)
+        [FromServices] RouteHelper routeHelper)
         where TContext : DbContext
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
@@ -99,7 +99,7 @@ public static class AdminEndpoints
 
         form.Save(context);
 
-        return Results.Redirect(routeReverser.Reverse("MyAdmin_ModelIndex", new { modelName }));
+        return Results.Redirect(routeHelper.Reverse("MyAdmin_ModelIndex", new { modelName }));
     }
 
     public static async Task<IResult> ModelChange_Get<TContext>(
@@ -137,6 +137,9 @@ public static class AdminEndpoints
         return Results.Extensions.Render(modelAdmin.FormChange_Template, null, new
         {
             Form = form,
+            instance,
+            ModelName = modelName,
+            identifier = objIdentifier,
         });
     }
 
@@ -146,7 +149,7 @@ public static class AdminEndpoints
         HttpContext httpContext,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins,
-        [FromServices] RouteHelper routeReverser)
+        [FromServices] RouteHelper routeHelper)
         where TContext : DbContext
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
@@ -178,6 +181,6 @@ public static class AdminEndpoints
 
         form.Save(context, instance);
 
-        return Results.Redirect(routeReverser.Reverse("MyAdmin_ModelIndex", new { modelName }));
+        return Results.Redirect(routeHelper.Reverse("MyAdmin_ModelIndex", new { modelName }));
     }
 }

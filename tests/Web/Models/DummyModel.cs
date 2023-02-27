@@ -22,4 +22,9 @@ public class DummyModel
 
     [DataType(DataType.DateTime)]
     public DateTime? CreatedDateTime { get; set; }
+
+    public override string ToString()
+    {
+        return $"DummyModel object ({Id})";
+    }
 }
