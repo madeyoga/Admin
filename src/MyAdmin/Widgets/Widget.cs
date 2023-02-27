@@ -22,7 +22,12 @@ public class Widget : IRenderable
         SetAttribute("value", value);
     }
 
-    public virtual object? GetValue()
+    public virtual void SetValue(object value)
+    {
+        SetValue(value.ToString()!);
+    }
+
+    public virtual string? GetValue()
     {
         if (_attributes.TryGetValue("value", out string? value))
         {
@@ -31,8 +36,20 @@ public class Widget : IRenderable
         return null;
     }
 
-    public virtual bool ValidateValue()
+    public virtual bool Validate()
     {
+        string? required = _attributes.GetValueOrDefault("requried");
+
+        // if required is present then value cannot be null or empty
+        if (required != null)
+        {
+            string? val = _attributes.GetValueOrDefault("value");
+            if (string.IsNullOrEmpty(val))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 

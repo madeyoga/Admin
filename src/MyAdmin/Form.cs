@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyAdmin.Admin.Widgets;
+using MyAdmin.Fields;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -21,9 +22,11 @@ public class Form : IRenderable
     public string Method { get; set; } = "post";
     public Type? ModelType { get; private set; }
     public IFormCollection? Data { get; set; }
+    public Dictionary<string, object> CleanedData { get; set; } = new();
+    public List<ValidationException> ValidationErrors { get; set; } = new();
     public List<Field> Fields { get; } = new();
 
-    private string GetNameAttribute(string name)
+    private string GetNameAttributeValue(string name)
     {
         return $"field-{name}";
     }
@@ -32,9 +35,18 @@ public class Form : IRenderable
     {
         ModelType = type;
         var widgets = new WidgetFactory();
+        var fields = new FieldFactory();
+        
+        object? instance = Activator.CreateInstance(type);
+
         foreach (PropertyInfo prop in type.GetProperties())
         {
             Type propType = prop.PropertyType;
+            Type? underlyingType = Nullable.GetUnderlyingType(propType);
+            if (underlyingType != null)
+            {
+                propType = underlyingType;
+            }
 
             // Ignore if property is a primary key
             KeyAttribute? keyAttr = prop.GetCustomAttribute<KeyAttribute>();
@@ -60,13 +72,29 @@ public class Form : IRenderable
 
             if (widget != null)
             {
-                widget.SetAttribute("name", GetNameAttribute(prop.Name));
-                Fields.Add(new Field(prop.Name, widget, "", prop));
+                // Check default values
+                object? val = prop.GetValue(instance);
+                if (val != null)
+                {
+                    widget.SetValue(val);
+                }
+
+                // Check required 
+                RequiredAttribute? requiredAttr = prop.GetCustomAttribute<RequiredAttribute>();
+                if (requiredAttr != null)
+                {
+                    widget.SetAttribute("required", "");
+                }
+
+                widget.SetAttribute("name", GetNameAttributeValue(prop.Name));
+                Field field = fields.GetField(propType.Name, widget, prop)!;
+
+                Fields.Add(field);
             }
         }
     }
 
-    public virtual void AssignFields(IFormCollection data)
+    public virtual void SetWidgets(IFormCollection data)
     {
         Data = data;
         foreach (Field field in Fields)
@@ -79,7 +107,7 @@ public class Form : IRenderable
         }
     }
 
-    public virtual void AssignFields(object instance)
+    public virtual void SetWidgets(object instance)
     {
         foreach (Field field in Fields)
         {
@@ -91,7 +119,10 @@ public class Form : IRenderable
         }
     }
 
-    // FORM Validator
+    /// <summary>
+    /// Validate form and generate CleanedData dictionary
+    /// </summary>
+    /// <returns></returns>
     public virtual async Task<bool> IsValid()
     {
         // Validate csrf token
@@ -111,16 +142,30 @@ public class Form : IRenderable
         {
             return false;
         }
+
+        bool isValid = true;
         foreach (Field field in Fields)
         {
-            if (!field.IsValid())
+            if (!field.GetWidget.Validate())
             {
-                Console.WriteLine(field.GetWidget.GetValue());
-                return false;
+                isValid = false;
             }
+
+            try
+            {
+                field.Validate();
+            }
+            catch (ValidationException exception)
+            {
+                ValidationErrors.Add(exception);
+                isValid = false;
+                continue;
+            }
+
+            CleanedData[field.GetWidget.GetAttribute("name")] = field.GetValue()!;
         }
 
-        return true;
+        return isValid;
     }
 
     public virtual void Save<TContext>(TContext dbContext)
@@ -135,7 +180,7 @@ public class Form : IRenderable
         foreach (Field field in Fields)
         {
             PropertyInfo prop = field.Property;
-            prop.SetValue(instance, field.GetWidget.GetValue());
+            prop.SetValue(instance, field.GetValue());
         }
 
         dbContext.Add(instance);
@@ -156,7 +201,7 @@ public class Form : IRenderable
         foreach (Field field in Fields)
         {
             PropertyInfo prop = field.Property;
-            prop.SetValue(instance, field.GetWidget.GetValue());
+            prop.SetValue(instance, field.GetValue());
         }
 
         dbContext.Update(instance);
@@ -192,38 +237,5 @@ public class Form : IRenderable
 				</div>
 			</form>
 			""";
-    }
-}
-
-public class Field : IRenderable
-{
-    private readonly string _label;
-    public Widget GetWidget { get; private set; }
-    private readonly string _hint;
-    public PropertyInfo Property { get; private set; }
-
-    public Field(string label, Widget widget, string hint, PropertyInfo property)
-    {
-        _label = label;
-        GetWidget = widget;
-        _hint = hint;
-        Property = property;
-    }
-
-    public bool IsValid()
-    {
-        return GetWidget.ValidateValue();
-    }
-
-    public string Render()
-    {
-        string html =
-            $$"""
-			<div class="mb-3">
-				<label for="{{GetWidget.GetAttribute("name")}}" class="form-label">{{_label}}</label>
-				{{GetWidget.Render()}}
-			</div>
-			""";
-        return html;
     }
 }

@@ -132,7 +132,7 @@ public static class AdminEndpoints
         }
 
         Form form = modelAdmin.GetForm();
-        form.AssignFields(instance);
+        form.SetWidgets(instance);
 
         return Results.Extensions.Render(modelAdmin.FormChange_Template, null, new
         {

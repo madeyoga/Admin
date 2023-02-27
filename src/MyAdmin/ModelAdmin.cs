@@ -26,7 +26,7 @@ public class ModelAdmin
     public Form GetForm(IFormCollection data)
     {
         var form = GetForm();
-        form.AssignFields(data);
+        form.SetWidgets(data);
         return form;
     }
 }

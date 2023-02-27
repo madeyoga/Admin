@@ -25,13 +25,14 @@ public class WidgetFactory
 
     public WidgetFactory()
     {
+        Type dtWidgetType = typeof(DateTimeWidget);
         _widgets2 = new()
         {
             { DataType.Password, typeof(PasswordWidget) },
             { DataType.EmailAddress, typeof(EmailWidget) },
             { DataType.MultilineText, typeof(TextareaWidget) },
             { DataType.Date, typeof(DateWidget) },
-            { DataType.DateTime, typeof(DateTimeWidget) },
+            { DataType.DateTime, dtWidgetType },
         };
 
         Type numberWidgetType = typeof(InputNumberWidget);
@@ -42,6 +43,7 @@ public class WidgetFactory
             { typeof(float).Name, numberWidgetType },
             { typeof(double).Name, numberWidgetType },
             { typeof(bool).Name, typeof(InputCheckboxWidget) },
+            { typeof(DateTime).Name, dtWidgetType },
         };
     }
 

@@ -2,7 +2,7 @@
 
 public class TextareaWidget : Widget
 {
-    private string _value;
+    private string? _value;
 
     public TextareaWidget()
     {
@@ -15,7 +15,7 @@ public class TextareaWidget : Widget
         _value = value;
     }
 
-    public override object? GetValue()
+    public override string? GetValue()
     {
         return _value;
     }

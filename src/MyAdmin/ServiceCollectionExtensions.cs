@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using MyAdmin.Admin.Services;
+using MyAdmin.Admin.Widgets;
+using MyAdmin.Fields;
 
 namespace MyAdmin.Admin;
 
@@ -40,6 +42,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AdminServiceProvider>();
         services.AddSingleton<RouteHelper>();
         services.AddSingleton(typeof(IOptions<AdminOptions>), Options.Create(options));
+        services.AddSingleton<WidgetFactory>();
+        services.AddSingleton<FieldFactory>();
 
         // Add cookie auth
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

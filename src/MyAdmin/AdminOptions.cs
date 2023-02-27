@@ -29,4 +29,18 @@ public class AdminOptions
 
         _admins.Add(tModel.Name!, pair);
     }
+
+    public void Register<TModel>()
+        where TModel : class
+    {
+        var tModel = typeof(TModel);
+        var tAdmin = typeof(ModelAdmin);
+        var pair = new ModelAdminTypePair()
+        {
+            Admin = tAdmin,
+            Model = tModel,
+        };
+
+        _admins.Add(tModel.Name!, pair);
+    }
 }

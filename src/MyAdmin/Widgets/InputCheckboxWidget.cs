@@ -7,20 +7,4 @@ public class InputCheckboxWidget : Widget
         SetAttribute("type", "checkbox");
         SetAttribute("class", "form-check-input");
     }
-
-    public override object? GetValue()
-    {
-        string? value = (string)base.GetValue()!;
-
-        if (string.IsNullOrEmpty(value))
-        {
-            return false;
-        }
-
-        if (string.Equals(value, "on", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-        return false;
-    }
 }
