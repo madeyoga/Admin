@@ -25,4 +25,8 @@
     <None Include="G:\Programs\CSharp\MyAdmin\tests\Web\.editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

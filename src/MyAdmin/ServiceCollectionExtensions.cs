@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
         {
             setup.Invoke(options);
 
-            // Adds registered admin model types from options to ServiceCollection
+            // Adds registered admin model types from selectOptions to ServiceCollection
             foreach (string key in options.Admins.Keys)
             {
                 ModelAdminTypePair pair = options.Admins.GetValueOrDefault(key)!;

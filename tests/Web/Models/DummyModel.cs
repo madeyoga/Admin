@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MyAdmin.Admin.Models;
 
@@ -22,6 +23,10 @@ public class DummyModel
 
     [DataType(DataType.DateTime)]
     public DateTime? CreatedDateTime { get; set; }
+
+    public int ContentTypeId { get; set; }
+    [ForeignKey("ContentTypeId")]
+    public ContentType? ContentType { get; set; }
 
     public override string ToString()
     {

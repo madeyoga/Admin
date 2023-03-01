@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace MyAdmin.Admin;
 
@@ -24,5 +27,23 @@ public static class TypeHelper
         }
 
         return pkProperty.ClrType;
+    }
+
+    public static string? FindPrimaryKeyName(Type type)
+    {
+        PropertyInfo[] properties = type.GetProperties();
+        foreach (PropertyInfo property in properties)
+        {
+            if (property.IsDefined(typeof(KeyAttribute), false))
+            {
+                return property.Name;
+            }
+        }
+        return null;
+    }
+
+    public static bool IsNullable(Type type)
+    {
+        return Nullable.GetUnderlyingType(type) != null;
     }
 }

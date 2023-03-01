@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using MyAdmin.Admin.Widgets;
 using MyAdmin.Fields;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 namespace MyAdmin.Admin;
@@ -12,10 +15,12 @@ namespace MyAdmin.Admin;
 public class Form : IRenderable
 {
     private readonly IHttpContextAccessor contextAccessor;
+    private readonly RouteHelper routeHelper;
 
-    public Form(IHttpContextAccessor contextAccessor)
+    public Form(IHttpContextAccessor contextAccessor, RouteHelper routeHelper)
     {
         this.contextAccessor = contextAccessor;
+        this.routeHelper = routeHelper;
     }
 
     public string Action { get; set; } = "";
@@ -39,8 +44,15 @@ public class Form : IRenderable
         
         object? instance = Activator.CreateInstance(type);
 
+        ISet<string> foreignKeyMemo = new HashSet<string>();
         foreach (PropertyInfo prop in type.GetProperties())
         {
+            // check prop name if registered
+            if (foreignKeyMemo.Contains(prop.Name))
+            {
+                continue;
+            }
+
             Type propType = prop.PropertyType;
             Type? underlyingType = Nullable.GetUnderlyingType(propType);
             if (underlyingType != null)
@@ -57,39 +69,96 @@ public class Form : IRenderable
             }
 
             Widget? widget;
-            DataTypeAttribute? attr = prop.GetCustomAttribute<DataTypeAttribute>();
 
-            // Try get widget by DataTypeAttribute first
-            if (attr != null)
+            // If prop is a ForeignKey
+            ForeignKeyAttribute? fkAttr = prop.GetCustomAttribute<ForeignKeyAttribute>();
+            if (fkAttr == null && prop.Name.EndsWith("Id")) 
             {
-                widget = widgets.GetWidget(attr.DataType);
-            }
-            // If DataTypeAttribute was not found, then try get widget by PropertyType.
-            else
-            {
-                widget = widgets.GetWidget(propType);
+                continue;
             }
 
-            if (widget != null)
+            if (fkAttr != null)
             {
-                // Check default values
-                object? val = prop.GetValue(instance);
+                // check if prop is Id or Navigation Property
+                widget = widgets.GetWidget("select")!;
+                widget.AppendAttribute("class", "field-foreignkey");
+
+                PropertyInfo? fkProp;
+                PropertyInfo? navigationProp;
+
+                if (fields.Contains(prop.PropertyType.Name))
+                {
+                    fkProp = prop;
+                    navigationProp = type.GetProperty(fkAttr.Name)!;
+                }
+                else
+                {
+                    navigationProp = prop;
+                    fkProp = type.GetProperty(fkAttr.Name)!;
+                }
+
+                widget.SetAttribute("id", GetNameAttributeValue(fkProp.Name));
+                widget.SetAttribute("name", GetNameAttributeValue(fkProp.Name));
+
+                string fetchUrl = routeHelper.Reverse("MyAdmin_FetchData_Get", new { modelName = navigationProp.PropertyType.Name });
+                widget.SetAttribute("data-fetch-url", fetchUrl);
+
+                string pkName = TypeHelper.FindPrimaryKeyName(navigationProp.PropertyType)!;
+                widget.SetAttribute("data-pk-name", pkName);
+                widget.SetAttribute("data-model-name", navigationProp.PropertyType.Name);
+
+                object? val = fkProp.GetValue(instance);
                 if (val != null)
                 {
-                    widget.SetValue(val);
+                    widget.SetAttribute("value", val.ToString()!);
                 }
 
-                // Check required 
-                RequiredAttribute? requiredAttr = prop.GetCustomAttribute<RequiredAttribute>();
-                if (requiredAttr != null)
+                Field? field = fields.GetField(fkProp.PropertyType.Name, widget, fkProp);
+                if (field != null)
                 {
-                    widget.SetAttribute("required", "");
+                    Fields.Add(field);
+                }
+                foreignKeyMemo.Add(fkProp.Name);
+                foreignKeyMemo.Add(navigationProp.Name);
+            }
+            else
+            {
+                DataTypeAttribute? attr = prop.GetCustomAttribute<DataTypeAttribute>();
+
+                // Try get widget by DataTypeAttribute first
+                if (attr != null)
+                {
+                    widget = widgets.GetWidget(attr.DataType);
+                }
+                // If DataTypeAttribute was not found, then try get widget by PropertyType.
+                else
+                {
+                    widget = widgets.GetWidget(propType);
                 }
 
-                widget.SetAttribute("name", GetNameAttributeValue(prop.Name));
-                Field field = fields.GetField(propType.Name, widget, prop)!;
+                if (widget != null)
+                {
+                    object? val = prop.GetValue(instance);
+                    if (val != null)
+                    {
+                        widget.SetValue(val);
+                    }
 
-                Fields.Add(field);
+                    // Check required 
+                    RequiredAttribute? requiredAttr = prop.GetCustomAttribute<RequiredAttribute>();
+                    if (requiredAttr != null)
+                    {
+                        widget.SetAttribute("required", "");
+                    }
+
+                    widget.SetAttribute("name", GetNameAttributeValue(prop.Name));
+                    Field? field = fields.GetField(propType.Name, widget, prop);
+
+                    if (field != null)
+                    {
+                        Fields.Add(field);
+                    }
+                }
             }
         }
     }

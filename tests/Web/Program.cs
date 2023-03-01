@@ -24,6 +24,8 @@ builder.Services.AddAdmin<MyDbContext>(options =>
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 app.MapGet("/", () =>
 {
     return Results.Extensions.Render("~/Templates/Index.cshtml");

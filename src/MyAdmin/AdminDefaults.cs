@@ -3,7 +3,7 @@
 namespace MyAdmin.Admin;
 
 /// <summary>
-/// Default values related to cookie-based authentication
+/// Default selectOptions related to cookie-based authentication
 /// </summary>
 public class AdminDefaults
 {

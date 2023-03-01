@@ -13,3 +13,33 @@
 
     @(new HtmlString(formAdd.Render()))
 </div>
+
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".field-foreignkey").each((i, element) => {
+                const fetchUrl = element.getAttribute("data-fetch-url")
+                const pkName = element.getAttribute("data-pk-name")
+                const defaultValue = element.getAttribute("value")
+                fetch(fetchUrl)
+                    .then(o => o.json())
+                    .then(o => {
+                        for (let item of o) {
+                            const opt = document.createElement("option")
+                            const label = Object.keys(item).map(key => item[key]).join(" - ")
+                            opt.value = item[pkName.toLowerCase()]
+                            opt.innerHTML = label
+
+                            if (opt.value === defaultValue) {
+                                opt.selected = true;
+                            }
+
+                            element.appendChild(opt)
+                        }
+                    })
+            })
+        })
+    </script>
+}

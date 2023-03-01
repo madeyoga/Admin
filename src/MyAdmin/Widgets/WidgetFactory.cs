@@ -26,6 +26,7 @@ public class WidgetFactory
     public WidgetFactory()
     {
         Type dtWidgetType = typeof(DateTimeWidget);
+        Type numberWidgetType = typeof(InputNumberWidget);
         _widgets2 = new()
         {
             { DataType.Password, typeof(PasswordWidget) },
@@ -34,8 +35,6 @@ public class WidgetFactory
             { DataType.Date, typeof(DateWidget) },
             { DataType.DateTime, dtWidgetType },
         };
-
-        Type numberWidgetType = typeof(InputNumberWidget);
         _widgets = new()
         {
             { typeof(string).Name, typeof(InputTextWidget) },
@@ -44,6 +43,7 @@ public class WidgetFactory
             { typeof(double).Name, numberWidgetType },
             { typeof(bool).Name, typeof(InputCheckboxWidget) },
             { typeof(DateTime).Name, dtWidgetType },
+            { "select", typeof(SelectWidget) },
         };
     }
 
@@ -74,10 +74,5 @@ public class WidgetFactory
         }
 
         return Activator.CreateInstance(widgetType) as Widget;
-    }
-
-    public virtual Widget? GetWidget(PropertyInfo propertyInfo)
-    {
-        throw new NotImplementedException();
     }
 }

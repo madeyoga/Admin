@@ -183,4 +183,26 @@ public static class AdminEndpoints
 
         return Results.Redirect(routeHelper.Reverse("MyAdmin_ModelIndex", new { modelName }));
     }
+
+    public static IResult ModelFetchData<TContext>(
+        [FromRoute] string modelName,
+        TContext dbContext,
+        [FromServices] AdminServiceProvider admins)
+        where TContext : DbContext
+    {
+        ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
+        if (modelAdmin == null)
+        {
+            return Results.NotFound();
+        }
+
+        Type modelType = modelAdmin.ModelType!;
+        IQueryable? set = dbContext.Set(modelType);
+        if (set == null) 
+        {
+            return Results.NotFound();
+        }
+        
+        return Results.Ok(set);
+    }
 }

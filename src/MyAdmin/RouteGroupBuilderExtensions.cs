@@ -15,6 +15,7 @@ public static class RouteGroupBuilderExtensions
         group.MapPost("{modelName}/add/", AdminEndpoints.ModelAdd_Post<TContext>).WithName("MyAdmin_ModelAdd_Post");
         group.MapGet("{modelName}/change/{objIdentifier}/", AdminEndpoints.ModelChange_Get<TContext>).WithName("MyAdmin_ModelChange_Get");
         group.MapPost("{modelName}/change/{objIdentifier}/", AdminEndpoints.ModelChange_Post<TContext>).WithName("MyAdmin_ModelChange_Post");
+        group.MapGet("{modelName}/get/", AdminEndpoints.ModelFetchData<TContext>).WithName("MyAdmin_FetchData_Get");
         group.WithGroupName("MyAdmin");
     }
 }

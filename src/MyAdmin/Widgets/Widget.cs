@@ -17,6 +17,11 @@ public class Widget : IRenderable
         return _attributes[name];
     }
 
+    public virtual void AppendAttribute(string name, string value)
+    {
+        _attributes[name] += $" {value}";
+    }
+
     public virtual void SetValue(string value)
     {
         SetAttribute("value", value);

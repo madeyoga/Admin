@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin.Widgets;
+﻿using MyAdmin.Admin;
+using MyAdmin.Admin.Widgets;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -28,6 +29,13 @@ public class DateTimeField : Field
             catch (FormatException)
             {
                 throw new ValidationException("Invalid format");
+            }
+        }
+        else
+        {
+            if (!TypeHelper.IsNullable(Property.PropertyType))
+            {
+                throw new ValidationException($"Unable to assign value of null to a non nullable field: {Property.Name}");
             }
         }
     }
