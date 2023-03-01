@@ -15,7 +15,6 @@ public class FieldFactory
             { typeof(double).Name, typeof(DoubleField) },
             { typeof(bool).Name, typeof(BooleanField) },
             { typeof(DateTime).Name, typeof(DateTimeField) },
-            { "select", typeof(TextField) },
         };
     }
 
