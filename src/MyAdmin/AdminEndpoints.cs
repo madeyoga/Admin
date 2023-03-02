@@ -36,7 +36,7 @@ public static class AdminEndpoints
             return Results.NotFound();
         }
 
-        PaginatedList<object> pages = await PaginatedList<object>.CreateAsync(dbset.AsNoTracking(), pageNumber ?? 1, 50);
+        PaginatedList<object> pages = await PaginatedList<object>.CreateAsync(dbset.AsNoTracking(), page ?? 1, 50);
 
         List<Dictionary<string, object?>> data = pages.ToDictionary();
         HashSet<string> properties = new();

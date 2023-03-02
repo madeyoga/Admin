@@ -24,17 +24,14 @@ public class PaginatedList<T> : List<T>
     public List<Dictionary<string, object?>> ToDictionary()
     {
         List<Dictionary<string, object?>> data = new();
-        if (this != null)
+        foreach (var record in this)
         {
-            foreach (var record in this)
+            Dictionary<string, object?> temp = new();
+            foreach (var prop in record!.GetType().GetProperties())
             {
-                Dictionary<string, object?> temp = new();
-                foreach (var prop in record!.GetType().GetProperties())
-                {
-                    temp.Add(prop.Name, prop.GetValue(record));
-                }
-                data.Add(temp);
+                temp.Add(prop.Name, prop.GetValue(record));
             }
+            data.Add(temp);
         }
         return data;
     }
