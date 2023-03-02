@@ -14,7 +14,8 @@ public static class AdminEndpoints
     }
 
     //[Authorize(Roles = "MyAdmin_Staff")]
-    public static IResult ModelIndex<TContext>(
+    public static async Task<IResult> ModelIndex<TContext>(
+        int? page,
         [FromRoute] string modelName,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins)
@@ -29,21 +30,20 @@ public static class AdminEndpoints
 
         Type modelType = modelAdmin.ModelType!;
 
-        IQueryable? dbset = context.Set(modelType);
-        List<Dictionary<string, object?>> data = new();
-        HashSet<string> properties = new();
-        if (dbset != null)
+        IQueryable<object>? dbset = context.Set(modelType) as IQueryable<object>;
+        if (dbset == null)
         {
-            foreach (var record in dbset)
-            {
-                Dictionary<string, object?> temp = new();
-                foreach (var prop in record.GetType().GetProperties())
-                {
-                    temp.Add(prop.Name, prop.GetValue(record));
-                    properties.Add(prop.Name);
-                }
-                data.Add(temp);
-            }
+            return Results.NotFound();
+        }
+
+        PaginatedList<object> pages = await PaginatedList<object>.CreateAsync(dbset.AsNoTracking(), pageNumber ?? 1, 50);
+
+        List<Dictionary<string, object?>> data = pages.ToDictionary();
+        HashSet<string> properties = new();
+
+        foreach (var prop in modelType.GetProperties())
+        {
+            properties.Add(prop.Name);
         }
 
         return Results.Extensions.Render(modelAdmin.Index_Template, null, new
