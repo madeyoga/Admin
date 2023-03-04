@@ -8,11 +8,23 @@ public class PaginatedList<T> : List<T>
 {
     public int PageIndex { get; private set; }
     public int TotalPages { get; private set; }
+    public int NextPageNumber { get; private set; }
+    public int PreviousPageNumber { get; private set; }
 
     public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
     {
         PageIndex = pageIndex;
         TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+
+        if (HasNextPage)
+        {
+            NextPageNumber = pageIndex + 1;
+        }
+
+        if (HasPreviousPage)
+        {
+            PreviousPageNumber = pageIndex - 1;
+        }
 
         this.AddRange(items);
     }
@@ -21,7 +33,7 @@ public class PaginatedList<T> : List<T>
 
     public bool HasNextPage => PageIndex < TotalPages;
 
-    public List<Dictionary<string, object?>> ToDictionary()
+    public List<Dictionary<string, object?>> ToDictionaries()
     {
         List<Dictionary<string, object?>> data = new();
         foreach (var record in this)

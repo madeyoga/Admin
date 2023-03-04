@@ -11,7 +11,8 @@
 }
 
 @{
-    List<Dictionary<string, object?>>? Data = ViewData["Data"] as List<Dictionary<string, object?>>;
+    PaginatedList<object> pages = (ViewData["Pages"] as PaginatedList<object>)!;
+    List<Dictionary<string, object?>>? Dataset = ViewData["Dataset"] as List<Dictionary<string, object?>>;
     HashSet<string>? Properties = ViewData["Properties"] as HashSet<string>;
 }
 
@@ -37,12 +38,14 @@
                     <tr>
                         @foreach (string key in Properties!)
                         {
-                            <th>@key</th>
+                            <th>
+                                <a class="heading-hyperlink" data-prop-name="@key">@key</a>
+                            </th>
                         }
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (Dictionary<string, object?> record in Data!)
+                    @foreach (Dictionary<string, object?> record in Dataset!)
                     {
                         int i = 0;
 
@@ -67,6 +70,63 @@
                     }
                 </tbody>
             </table>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    @if (pages.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=@pages.PreviousPageNumber" aria-label="Previous">
+                                <span aria-hidden="true">@pages.PreviousPageNumber</span>
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item active">
+                        <div class="page-link" aria-label="CurrentPage">
+                            @pages.PageIndex
+                        </div>
+                    </li>
+
+                    @if (pages.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="?page=@pages.NextPageNumber" aria-label="Next">
+                                <span aria-hidden="true">@pages.NextPageNumber</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=@pages.TotalPages" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const headingHyperlinks = document.querySelectorAll(".heading-hyperlink")
+        for (let el of headingHyperlinks) {
+            const params = new URLSearchParams(window.location.search);
+            let propName = el.getAttribute("data-prop-name")
+            if (propName != '') {
+                const currentOrder = params.get("order")
+                if (currentOrder !== null && currentOrder === propName) {
+                    if (!currentOrder.startsWith("-")) {
+                        propName = "-" + propName
+                    }
+                }
+                params.set("order", propName)
+            }
+            el.href = "?" + params.toString()
+        }
+    </script>
+} 

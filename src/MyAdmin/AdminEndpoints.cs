@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 
 namespace MyAdmin.Admin;
 
@@ -16,6 +17,7 @@ public static class AdminEndpoints
     //[Authorize(Roles = "MyAdmin_Staff")]
     public static async Task<IResult> ModelIndex<TContext>(
         int? page,
+        string? order,
         [FromRoute] string modelName,
         [FromServices] TContext context,
         [FromServices] AdminServiceProvider admins)
@@ -30,15 +32,36 @@ public static class AdminEndpoints
 
         Type modelType = modelAdmin.ModelType!;
 
-        IQueryable<object>? dbset = context.Set(modelType) as IQueryable<object>;
+        IQueryable<object>? dbset = (context.Set(modelType) as IQueryable<object>);
         if (dbset == null)
         {
             return Results.NotFound();
         }
 
-        PaginatedList<object> pages = await PaginatedList<object>.CreateAsync(dbset.AsNoTracking(), page ?? 1, 50);
+        if (order != null)
+        {
+            if (order.StartsWith("-"))
+            {
+                order = order.Substring(1);
+                PropertyInfo? prop = modelType.GetProperty(order);
+                if (prop != null)
+                {
+                    dbset = dbset.OrderDescending(modelType, prop)!;
+                }
+            }
+            else
+            {
+                PropertyInfo? prop = modelType.GetProperty(order);
+                if (prop != null)
+                {
+                    dbset = dbset.OrderAscending(modelType, prop)!;
+                }
+            }
+        }
 
-        List<Dictionary<string, object?>> data = pages.ToDictionary();
+        PaginatedList<object> pages = await PaginatedList<object>.CreateAsync(dbset.AsNoTracking(), page ?? 1, 2);
+
+        List<Dictionary<string, object?>> dataset = pages.ToDictionaries();
         HashSet<string> properties = new();
 
         foreach (var prop in modelType.GetProperties())
@@ -49,8 +72,9 @@ public static class AdminEndpoints
         return Results.Extensions.Render(modelAdmin.Index_Template, null, new
         {
             ModelName = modelName,
-            Data = data,
+            Dataset = dataset,
             Properties = properties,
+            Pages = pages,
         });
     }
 
