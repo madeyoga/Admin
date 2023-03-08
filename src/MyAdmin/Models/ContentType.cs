@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyAdmin.Admin.Models;
+namespace MyAdmin.Admin;
 
 public class ContentType
 {

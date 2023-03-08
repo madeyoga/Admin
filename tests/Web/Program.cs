@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyAdmin.Admin;
-using MyAdmin.Admin.Models;
-using MyAdmin.Data;
+using Web.Data;
+using Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +16,11 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 builder.Services.AddAdmin<MyDbContext>(options =>
 {
-    options.Register<ContentType, ModelAdmin>();
-	options.Register<IdentityUser, ModelAdmin>();
-	options.Register<DummyModel, ModelAdmin>();
-	options.SiteName = "My New Admin";
+    options.Register<ContentType>();
+    options.Register<IdentityUser>();
+    options.Register<DummyModel>();
+    options.Register<Product>();
+	options.SiteName = "aspnetcore";
 });
 
 var app = builder.Build();

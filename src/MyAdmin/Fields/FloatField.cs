@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin.Widgets;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using MyAdmin.Admin.Widgets;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -9,6 +10,10 @@ public class FloatField : Field
     private float? value;
 
     public FloatField(Widget widget, PropertyInfo property) : base(widget, property)
+    {
+    }
+
+    public FloatField(Widget widget, IProperty property) : base(widget, property)
     {
     }
 

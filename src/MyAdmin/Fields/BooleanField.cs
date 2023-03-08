@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin.Widgets;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using MyAdmin.Admin.Widgets;
 using System.Reflection;
 
 namespace MyAdmin.Fields;
@@ -7,6 +8,10 @@ public class BooleanField : Field
     private bool _value;
 
     public BooleanField(Widget widget, PropertyInfo property) : base(widget, property)
+    {
+    }
+
+    public BooleanField(Widget widget, IProperty property) : base(widget, property)
     {
     }
 

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using MyAdmin.Admin.Services;
 using MyAdmin.Admin.Widgets;
 using MyAdmin.Fields;
 
@@ -38,7 +37,18 @@ public static class ServiceCollectionExtensions
                 }
             }
         }
+
+        services.AddScoped<IFieldService, FieldService<TContext>>();
+
         services.AddTransient<Form>();
+        services.AddScoped<FormFactory>();
+        services.AddTransient<FormBuilder>();
+        
+        services.AddScoped<FormRendererFactory>();
+        services.AddScoped<DefaultFormRenderer>();
+        services.AddScoped<TabularInlineFormRenderer>();
+        services.AddScoped<StackedInlineFormRenderer>();
+
         services.AddScoped<AdminServiceProvider>();
         services.AddSingleton<RouteHelper>();
         services.AddSingleton(typeof(IOptions<AdminOptions>), Options.Create(options));

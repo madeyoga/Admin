@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using MyAdmin.Admin;
 using MyAdmin.Admin.Widgets;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -10,6 +11,10 @@ public class IntegerField : Field
     private int? value;
 
     public IntegerField(Widget widget, PropertyInfo property) : base(widget, property)
+    {
+    }
+
+    public IntegerField(Widget widget, IProperty property) : base(widget, property)
     {
     }
 

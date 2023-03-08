@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using MyAdmin.Admin;
 using MyAdmin.Admin.Widgets;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
@@ -9,6 +10,10 @@ public class DateTimeField : Field
     private DateTime _datetime;
 
     public DateTimeField(Widget widget, PropertyInfo property) : base(widget, property)
+    {
+    }
+    
+    public DateTimeField(Widget widget, IProperty property) : base(widget, property)
     {
     }
 

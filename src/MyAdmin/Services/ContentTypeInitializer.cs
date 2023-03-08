@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyAdmin.Admin.Models;
 using System.Reflection;
 
-namespace MyAdmin.Admin.Services;
+namespace MyAdmin.Admin;
 
 public class ContentTypeInitializer<TContext> where TContext : DbContext
 {

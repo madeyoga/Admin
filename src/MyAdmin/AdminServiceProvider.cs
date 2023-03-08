@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace MyAdmin.Admin;
 
@@ -38,6 +39,23 @@ public class AdminServiceProvider
 
         var admin = _services.GetService(pair.Admin) as ModelAdmin;
         admin!.ModelType = pair.Model;
+        admin.CreateForms();
+
+        return admin;
+    }
+
+    public ModelAdmin? GetModelAdmin<TContext>(TContext context, string modelName)
+        where TContext : DbContext
+    {
+        ModelAdminTypePair? pair = _options.Admins.GetValueOrDefault(modelName);
+        if (pair == null)
+        {
+            return null;
+        }
+
+        var admin = _services.GetService(pair.Admin) as ModelAdmin;
+        admin!.ModelType = pair.Model;
+        admin.CreateForms();
 
         return admin;
     }

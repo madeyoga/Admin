@@ -1,21 +1,11 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using MyAdmin.Admin.Services;
 
 namespace MyAdmin.Admin;
 
 public static class WebApplicationExtensions
 {
-    public static WebApplication MapAdminEndpoints<TContext>(this WebApplication app)
-        where TContext : DbContext
-    {
-        app.MapGet("", AdminEndpoints.AdminIndex);
-        app.MapGet("{modelName}/", AdminEndpoints.ModelIndex<TContext>);
-        app.MapGet("{modelName}/add/", AdminEndpoints.ModelAdd_Get);
-        return app;
-    }
-
     /// <summary>
     /// Populate content types
     /// </summary>

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "myadmin.tools": {
+      "version": "1.0.0",
+      "commands": [
+        "admin"
+      ]
+    }
+  }
+}

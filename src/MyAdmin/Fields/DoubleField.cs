@@ -1,4 +1,5 @@
-﻿using MyAdmin.Admin.Widgets;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using MyAdmin.Admin.Widgets;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -8,6 +9,10 @@ public class DoubleField : Field
     private double value;
 
     public DoubleField(Widget widget, PropertyInfo property) : base(widget, property)
+    {
+    }
+
+    public DoubleField(Widget widget, IProperty property) : base(widget, property)
     {
     }
 

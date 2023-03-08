@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MyAdmin.Admin;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyAdmin.Admin.Models;
+namespace Web.Models;
 
 public class DummyModel
 {
@@ -23,6 +24,9 @@ public class DummyModel
 
     [DataType(DataType.DateTime)]
     public DateTime? CreatedDateTime { get; set; }
+
+    [TabularInline]
+    public List<Product>? Products { get; set; }
 
     public int ContentTypeId { get; set; }
     [ForeignKey("ContentTypeId")]

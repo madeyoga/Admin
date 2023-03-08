@@ -81,7 +81,6 @@ public static class AdminEndpoints
     //[Authorize(Roles = "MyAdmin_Staff")]
     public static IResult ModelAdd_Get(
         [FromRoute] string modelName,
-        [FromServices] IOptions<AdminOptions> options,
         [FromServices] AdminServiceProvider admins)
     {
         ModelAdmin? modelAdmin = admins.GetModelAdmin(modelName);
