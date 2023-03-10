@@ -40,7 +40,7 @@ public class Form : IRenderable
         return $"field-{name}";
     }
 
-    public virtual void CreateFields2(Type type)
+    public virtual void CreateFields(Type type)
     {
         ModelType = type;
 
@@ -182,133 +182,6 @@ public class Form : IRenderable
 
                     widget.SetAttribute("name", GetNameAttributeValue(propertyInfo.Name));
                     Field? field = fields.GetField(propType.Name, widget, property);
-
-                    if (field != null)
-                    {
-                        Fields.Add(field);
-                    }
-                }
-            }
-        }
-    }
-
-    public virtual void CreateFields(Type type)
-    {
-        ModelType = type;
-        var widgets = new WidgetFactory();
-        var fields = new FieldFactory();
-        
-        object? instance = Activator.CreateInstance(type);
-
-        ISet<string> foreignKeyMemo = new HashSet<string>();
-        foreach (PropertyInfo prop in type.GetProperties())
-        {
-            // check propertyInfo name if registered
-            if (foreignKeyMemo.Contains(prop.Name))
-            {
-                continue;
-            }
-            
-            Type propType = prop.PropertyType;
-            Type? underlyingType = Nullable.GetUnderlyingType(propType);
-            if (underlyingType != null)
-            {
-                propType = underlyingType;
-            }
-
-            // Ignore if property is a primary key
-            KeyAttribute? keyAttr = prop.GetCustomAttribute<KeyAttribute>();
-
-            if (keyAttr != null || prop.Name == "Id")
-            {
-                continue;
-            }
-
-            Widget? widget;
-
-            // If propertyInfo is a ForeignKey
-            ForeignKeyAttribute? fkAttr = prop.GetCustomAttribute<ForeignKeyAttribute>();
-            if (fkAttr == null && prop.Name.EndsWith("Id")) 
-            {
-                continue;
-            }
-
-            if (fkAttr != null)
-            {
-                // check if propertyInfo is Id or Navigation Property
-                widget = widgets.GetWidget("select")!;
-                widget.AppendAttribute("class", "field-foreignkey");
-
-                PropertyInfo? fkProp;
-                PropertyInfo? navigationProp;
-
-                if (fields.Contains(prop.PropertyType.Name))
-                {
-                    fkProp = prop;
-                    navigationProp = type.GetProperty(fkAttr.Name)!;
-                }
-                else
-                {
-                    fkProp = type.GetProperty(fkAttr.Name)!;
-                    navigationProp = prop;
-                }
-
-                widget.SetAttribute("id", GetNameAttributeValue(fkProp.Name));
-                widget.SetAttribute("name", GetNameAttributeValue(fkProp.Name));
-
-                string fetchUrl = routeHelper.Reverse("MyAdmin_FetchData_Get", new { modelName = navigationProp.PropertyType.Name });
-                widget.SetAttribute("data-fetch-url", fetchUrl);
-
-                string pkName = TypeHelper.FindPrimaryKeyName(navigationProp.PropertyType)!;
-                widget.SetAttribute("data-pk-name", pkName);
-                widget.SetAttribute("data-model-name", navigationProp.PropertyType.Name);
-
-                object? val = fkProp.GetValue(instance);
-                if (val != null)
-                {
-                    widget.SetAttribute("value", val.ToString()!);
-                }
-
-                Field? field = fields.GetField(fkProp.PropertyType.Name, widget, fkProp);
-                if (field != null)
-                {
-                    Fields.Add(field);
-                }
-                foreignKeyMemo.Add(fkProp.Name);
-                foreignKeyMemo.Add(navigationProp.Name);
-            }
-            else
-            {
-                DataTypeAttribute? attr = prop.GetCustomAttribute<DataTypeAttribute>();
-
-                // Try get widget by DataTypeAttribute first
-                if (attr != null)
-                {
-                    widget = widgets.GetWidget(attr.DataType);
-                }
-                // If DataTypeAttribute was not found, then try get widget by PropertyType.
-                else
-                {
-                    widget = widgets.GetWidget(propType);
-                }
-
-                if (widget != null)
-                {
-                    object? val = prop.GetValue(instance);
-                    if (val != null)
-                    {
-                        widget.SetValue(val);
-                    }
-
-                    // Check required 
-                    RequiredAttribute? requiredAttr = prop.GetCustomAttribute<RequiredAttribute>();
-                    if (requiredAttr != null)
-                    {
-                        widget.SetAttribute("required", "");
-                    }
-
-                    widget.SetAttribute("name", GetNameAttributeValue(prop.Name));
-                    Field? field = fields.GetField(propType.Name, widget, prop);
 
                     if (field != null)
                     {

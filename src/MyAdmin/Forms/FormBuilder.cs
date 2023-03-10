@@ -37,7 +37,7 @@ public class FormBuilder : IFormBuilder
             throw new InvalidOperationException("Unable to create a Form with null ModelType");
         }
 
-        form.CreateFields2(_modelType);
+        form.CreateFields(_modelType);
 
         return form;
     }
