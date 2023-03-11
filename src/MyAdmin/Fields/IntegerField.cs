@@ -36,13 +36,6 @@ public class IntegerField : Field
                 throw new ValidationException();
             }
         }
-        else
-        {
-            if (!TypeHelper.IsNullable(Property.PropertyType))
-            {
-                throw new ValidationException($"Unable to assign value of null to a non nullable field: {Property.Name}");
-            }
-        }
     }
 
     public override object? GetValue()

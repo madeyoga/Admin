@@ -36,12 +36,5 @@ public class DateTimeField : Field
                 throw new ValidationException("Invalid format");
             }
         }
-        else
-        {
-            if (!TypeHelper.IsNullable(Property.PropertyType))
-            {
-                throw new ValidationException($"Unable to assign value of null to a non nullable field: {Property.Name}");
-            }
-        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -8,13 +10,37 @@ namespace MyAdmin.Admin;
 
 public static class AdminEndpoints
 {
-    //[Authorize(Roles = "MyAdmin_Staff")]
+    public static IResult Register_Get(HttpContext httpContext, RouteHelper routeHelper)
+    {
+        if (httpContext.User.Identity!.IsAuthenticated)
+        {
+            return Results.Redirect(routeHelper.Reverse("MyAdmin_Index"));
+        }
+        return Results.Extensions.Render("~/Areas/Admin/Register.cshtml");
+    }
+
+    public static IResult Login_Get(HttpContext httpContext, RouteHelper routeHelper)
+    {
+        if (httpContext.User.Identity!.IsAuthenticated)
+        {
+            return Results.Redirect(routeHelper.Reverse("MyAdmin_Index"));
+        }
+        return Results.Extensions.Render("~/Areas/Admin/Login.cshtml");
+    }
+
+    public static async Task<IResult> Logout_Post<TUser>(HttpContext httpContext, RouteHelper routeHelper)
+    {
+        await httpContext.SignOutAsync();
+        return Results.Redirect(routeHelper.Reverse("MyAdmin_Login"));
+    }
+
+    [Authorize]
     public static IResult AdminIndex(IOptions<AdminOptions> options)
     {
         return Results.Extensions.Render(options.Value.IndexTemplate);
     }
 
-    //[Authorize(Roles = "MyAdmin_Staff")]
+    [Authorize]
     public static async Task<IResult> ModelIndex<TContext>(
         int? page,
         string? order,
@@ -78,7 +104,7 @@ public static class AdminEndpoints
         });
     }
 
-    //[Authorize(Roles = "MyAdmin_Staff")]
+    [Authorize]
     public static IResult ModelAdd_Get(
         [FromRoute] string modelName,
         [FromServices] AdminServiceProvider admins)
@@ -99,7 +125,7 @@ public static class AdminEndpoints
         });
     }
 
-    //[Authorize(Roles = "MyAdmin_Staff")]
+    [Authorize]
     public static async Task<IResult> ModelAdd_Post<TContext>([FromRoute] string modelName,
         HttpContext httpContext,
         [FromServices] TContext context,
@@ -125,6 +151,7 @@ public static class AdminEndpoints
         return Results.Redirect(routeHelper.Reverse("MyAdmin_ModelIndex", new { modelName }));
     }
 
+    [Authorize]
     public static async Task<IResult> ModelChange_Get<TContext>(
         [FromRoute] string modelName,
         [FromRoute] string objIdentifier,
@@ -166,6 +193,7 @@ public static class AdminEndpoints
         });
     }
 
+    [Authorize]
     public static async Task<IResult> ModelChange_Post<TContext>(
         [FromRoute] string modelName,
         [FromRoute] string objIdentifier,
@@ -207,6 +235,7 @@ public static class AdminEndpoints
         return Results.Redirect(routeHelper.Reverse("MyAdmin_ModelIndex", new { modelName }));
     }
 
+    [Authorize]
     public static IResult ModelFetchData<TContext>(
         [FromRoute] string modelName,
         TContext dbContext,

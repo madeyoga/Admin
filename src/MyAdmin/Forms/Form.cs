@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using MyAdmin.Admin.Widgets;
 using MyAdmin.Fields;
@@ -30,8 +29,9 @@ public class Form : IRenderable
     public string Method { get; set; } = "post";
     public Type? ModelType { get; private set; }
     public IFormCollection? Data { get; set; }
-    public Dictionary<string, object> CleanedData { get; set; } = new();
-    public List<ValidationException> ValidationErrors { get; set; } = new();
+    public Dictionary<string, object> CleanedData { get; private set; } = new();
+    public List<ValidationException> ValidationErrors { get; private set; } = new();
+    public List<ValidationResult> ValidationResults { get; private set; } = new();
     public List<Field> Fields { get; } = new();
     public IFormRenderer? Renderer { get; set; }
 
@@ -235,21 +235,19 @@ public class Form : IRenderable
             return false;
         }
 
-        // DataAnnotations ValidationContext
-        // ...
-
         // validate fields
         if (Fields.Count < 1)
         {
             return false;
         }
 
-        bool isValid = true;
+        bool isValidDatatype = true;
+        object instance = Activator.CreateInstance(ModelType!)!;
         foreach (Field field in Fields)
         {
             if (!field.GetWidget.Validate())
             {
-                isValid = false;
+                isValidDatatype = false;
             }
 
             try
@@ -259,14 +257,24 @@ public class Form : IRenderable
             catch (ValidationException exception)
             {
                 ValidationErrors.Add(exception);
-                isValid = false;
+                isValidDatatype = false;
                 continue;
             }
 
-            CleanedData[field.GetWidget.GetAttribute("name")] = field.GetValue()!;
+            object value = field.GetValue()!;
+            CleanedData[field.GetWidget.GetAttribute("name")] = value;
+            if (field.Property != null)
+            {
+                Console.WriteLine(value);
+                field.Property.SetValue(instance, value);
+            }
         }
 
-        return isValid;
+        ValidationContext validationContext = new ValidationContext(instance);
+
+        bool isValidAnnotations = Validator.TryValidateObject(instance, validationContext, ValidationResults, true);
+
+        return isValidDatatype && isValidAnnotations;
     }
 
     public virtual void Save<TContext>(TContext dbContext, bool commit = true)
